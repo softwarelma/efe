@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.softwarelma.epe.p1.app.EpeAppException;
+import com.softwarelma.epe.p1.app.EpeAppUtils;
+import com.softwarelma.epe.p3.generic.EpeGenericFinalReplace;
 
 public class EfeServerHistory {
 
@@ -14,13 +16,20 @@ public class EfeServerHistory {
     }
 
     public String inject(String text) throws EpeAppException {
-        // ${}, ${${}}, ..., while
-        // history.size
-        // history.3.x
-        // v = ${history.size} - 1
-        // v = ${v}
-        // reverse: history.-1, history.-2
-        return null;// TODO
+        EpeAppUtils.checkNull("text", text);
+        text = EpeGenericFinalReplace.replace(true, text, "history.size", this.listPoint2D.size() + "");
+
+        for (int i = this.listPoint2D.size() - 1; i >= 0 && text.contains("${history."); i--) {
+            EfeServerPoint2D point = this.listPoint2D.get(i);
+            text = EpeGenericFinalReplace.replace(true, text, "history." + i + ".x", point.getX() + "");
+            text = EpeGenericFinalReplace.replace(true, text, "history.-" + (this.listPoint2D.size() - i) + ".x",
+                    point.getX() + "");
+            text = EpeGenericFinalReplace.replace(true, text, "history." + i + ".y", point.getY() + "");
+            text = EpeGenericFinalReplace.replace(true, text, "history.-" + (this.listPoint2D.size() - i) + ".y",
+                    point.getY() + "");
+        }
+
+        return text;
     }
 
 }

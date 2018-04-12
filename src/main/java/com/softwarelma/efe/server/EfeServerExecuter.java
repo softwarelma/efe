@@ -13,10 +13,16 @@ public class EfeServerExecuter {
 
     public EfeServerHistory start() throws EpeAppException {
         EfeServerSheet sheet = new EfeServerSheet();// TODO
-        String text = null;// TODO
+        String text = this.retrieveFormulaFake();
         EfeServerFormula formula = new EfeServerFormula(text);
         EfeServerState state = new EfeServerState();// TODO
         return this.execAll(sheet, formula, state);
+    }
+
+    private String retrieveFormulaFake() {
+        String text = "x = ${history.-1.x} - ${history.-2.x} == 0 ? ${history.-1.x} + 10 : ${history.-1.x} \n"
+                + "y = ${history.-1.y} - ${history.-2.y} == 0 ? ${history.-1.y} + 10 : ${history.-1.y}";
+        return text;
     }
 
     private EfeServerHistory execAll(EfeServerSheet sheet, EfeServerFormula formula, EfeServerState state)
