@@ -5,7 +5,7 @@ import com.softwarelma.epe.p1.app.EpeAppException;
 public class EfeServer {
 
     public void start() throws EpeAppException {
-        EfeServerExecuter executer = new EfeServerExecuter();
+        EfeServerExecutor executer = new EfeServerExecutor();
         executer.start();
     }
 

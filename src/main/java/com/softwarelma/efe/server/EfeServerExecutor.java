@@ -9,17 +9,24 @@ import com.softwarelma.epe.p3.generic.EpeGenericFinalCalc;
 import com.softwarelma.epe.p3.generic.EpeGenericFinalProp_text_to_list_list;
 import com.softwarelma.epe.p3.generic.EpeGenericFinalReplace;
 
-public class EfeServerExecuter {
+public class EfeServerExecutor {
 
     public EfeServerHistory start() throws EpeAppException {
-        EfeServerSheet sheet = new EfeServerSheet();// TODO
-        String text = this.retrieveFormulaFake();
+        EfeServerSheet sheet = this.retrieveFakeSheet();
+        String text = this.retrieveFakeFormula();
         EfeServerFormula formula = new EfeServerFormula(text);
-        EfeServerState state = new EfeServerState();// TODO
+        EfeServerState state = new EfeServerState(sheet.getNumberOfLevels());
         return this.execAll(sheet, formula, state);
     }
 
-    private String retrieveFormulaFake() {
+    private EfeServerSheet retrieveFakeSheet() throws EpeAppException {
+        int[] arrayLevelWindow = new int[] { -1, 5 };
+        int[] arrayLevelLimit = new int[] { 50, 5 };
+        EfeServerSheet sheet = new EfeServerSheet(arrayLevelWindow, arrayLevelLimit);
+        return sheet;
+    }
+
+    private String retrieveFakeFormula() {
         String text = "x = ${history.-1.x} - ${history.-2.x} == 0 ? ${history.-1.x} + 10 : ${history.-1.x} \n"
                 + "y = ${history.-1.y} - ${history.-2.y} == 0 ? ${history.-1.y} + 10 : ${history.-1.y}";
         return text;
@@ -46,8 +53,10 @@ public class EfeServerExecuter {
         EfeServerPoint2D point2D = execJS(text);
         if (point2D == null)
             return false;
-        state.increment();
+        state.increment(sheet);
         history.add(point2D);
+        if (sheet.isFinished(state))
+            return false;
         return true;
     }
 
