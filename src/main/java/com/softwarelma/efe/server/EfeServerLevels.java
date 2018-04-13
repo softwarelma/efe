@@ -5,23 +5,23 @@ import com.softwarelma.epe.p1.app.EpeAppUtils;
 
 public class EfeServerLevels {
 
-    private final TYPE type;
+    private final Type type;
     private final int[] arrayLevel;
 
-    public enum TYPE {
-        STATE, WINDOW, LIMIT
+    public enum Type {
+        index, cycle, edge
     }
 
     public EfeServerLevels(int numberOfLevels) throws EpeAppException {
         if (numberOfLevels < 1)
             throw new EpeAppException("The numberOfLevels is < 1: " + numberOfLevels);
-        this.type = TYPE.STATE;
+        this.type = Type.index;
         this.arrayLevel = new int[numberOfLevels];
         for (int i = 0; i < this.arrayLevel.length; i++)
             this.arrayLevel[i] = -1;
     }
 
-    public EfeServerLevels(TYPE type, int[] arrayLevel) throws EpeAppException {
+    public EfeServerLevels(Type type, int[] arrayLevel) throws EpeAppException {
         EpeAppUtils.checkNull("type", type);
         EpeAppUtils.checkNull("arrayLevel", arrayLevel);
         this.type = type;
@@ -32,14 +32,14 @@ public class EfeServerLevels {
     }
 
     private void validateNoState() throws EpeAppException {
-        EpeAppUtils.checkNull("this.type", this.type.equals(TYPE.STATE) ? null : this.type);
+        EpeAppUtils.checkNull("this.type", this.type.equals(Type.index) ? null : this.type);
 
-        if (this.type.equals(TYPE.WINDOW)) {
+        if (this.type.equals(Type.cycle)) {
             EpeAppUtils.checkEquals("this.arrayLevel[0]", "-1", this.arrayLevel[0] + "", "-1");
             for (int i = 0; i < this.arrayLevel.length; i++)
                 if (this.arrayLevel[i] < 1)
                     throw new EpeAppException("Excepting the first, each window must be > 0");
-        } else if (this.type.equals(TYPE.LIMIT)) {
+        } else if (this.type.equals(Type.edge)) {
             if (this.arrayLevel[0] == 0 || this.arrayLevel[0] < -1)
                 throw new EpeAppException("The first limit must be -1 or > 0");
             for (int i = 0; i < this.arrayLevel.length; i++)
@@ -61,7 +61,7 @@ public class EfeServerLevels {
     }
 
     public void increment(EfeServerSheet sheet) throws EpeAppException {
-        EpeAppUtils.checkEquals("this.type", "TYPE.STATE", this.type, TYPE.STATE);
+        EpeAppUtils.checkEquals("this.type", "TYPE.STATE", this.type, Type.index);
         if (this.tryStart())
             return;
         this.arrayLevel[0]++;

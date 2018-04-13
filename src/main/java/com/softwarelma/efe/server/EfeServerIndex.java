@@ -2,11 +2,11 @@ package com.softwarelma.efe.server;
 
 import com.softwarelma.epe.p1.app.EpeAppException;
 
-public class EfeServerState {
+public class EfeServerIndex {
 
     private final EfeServerLevels levelsState;
 
-    public EfeServerState(int numberOfLevels) throws EpeAppException {
+    public EfeServerIndex(int numberOfLevels) throws EpeAppException {
         this.levelsState = new EfeServerLevels(numberOfLevels);
     }
 

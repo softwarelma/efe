@@ -9,8 +9,8 @@ public class EfeServerSheet {
     private final EfeServerLevels levelsLimit;
 
     public EfeServerSheet(int[] arrayLevelWindow, int[] arrayLevelLimit) throws EpeAppException {
-        this.levelsWindow = new EfeServerLevels(EfeServerLevels.TYPE.WINDOW, arrayLevelWindow);
-        this.levelsLimit = new EfeServerLevels(EfeServerLevels.TYPE.LIMIT, arrayLevelLimit);
+        this.levelsWindow = new EfeServerLevels(EfeServerLevels.Type.cycle, arrayLevelWindow);
+        this.levelsLimit = new EfeServerLevels(EfeServerLevels.Type.edge, arrayLevelLimit);
         EpeAppUtils.checkEquals("arrayLevelWindow.length", "arrayLevelLimit.length", arrayLevelWindow.length + "",
                 arrayLevelLimit.length + "");
     }
@@ -19,7 +19,7 @@ public class EfeServerSheet {
         return null;// TODO
     }
 
-    public boolean isFinished(EfeServerState state) throws EpeAppException {
+    public boolean isFinished(EfeServerIndex state) throws EpeAppException {
         if (this.getLevelLimit(0) != -1 && state.getLevelState(0) >= this.getLevelLimit(0))
             return true;
         boolean finished = false;

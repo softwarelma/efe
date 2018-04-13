@@ -9,14 +9,23 @@ import com.softwarelma.epe.p3.generic.EpeGenericFinalCalc;
 import com.softwarelma.epe.p3.generic.EpeGenericFinalProp_text_to_list_list;
 import com.softwarelma.epe.p3.generic.EpeGenericFinalReplace;
 
+/**
+ * comps: history, index, sheet
+ * 
+ * history: h.size, h.1.x, h.1.y
+ * 
+ * index:
+ * 
+ * sheet:
+ */
 public class EfeServerExecutor {
 
     public EfeServerHistory start() throws EpeAppException {
         EfeServerSheet sheet = this.retrieveFakeSheet();
         String text = this.retrieveFakeFormula();
         EfeServerFormula formula = new EfeServerFormula(text);
-        EfeServerState state = new EfeServerState(sheet.getNumberOfLevels());
-        return this.execAll(sheet, formula, state);
+        EfeServerIndex index = new EfeServerIndex(sheet.getNumberOfLevels());
+        return this.execAll(sheet, formula, index);
     }
 
     private EfeServerSheet retrieveFakeSheet() throws EpeAppException {
@@ -32,30 +41,30 @@ public class EfeServerExecutor {
         return text;
     }
 
-    private EfeServerHistory execAll(EfeServerSheet sheet, EfeServerFormula formula, EfeServerState state)
+    private EfeServerHistory execAll(EfeServerSheet sheet, EfeServerFormula formula, EfeServerIndex index)
             throws EpeAppException {
         EfeServerHistory history = new EfeServerHistory();
-        while (execOnce(sheet, formula, state, history))
+        while (execOnce(sheet, formula, index, history))
             ;
         return history;
     }
 
-    private boolean execOnce(EfeServerSheet sheet, EfeServerFormula formula, EfeServerState state,
+    private boolean execOnce(EfeServerSheet sheet, EfeServerFormula formula, EfeServerIndex index,
             EfeServerHistory history) throws EpeAppException {
         EpeAppUtils.checkNull("sheet", sheet);
         EpeAppUtils.checkNull("formula", formula);
-        EpeAppUtils.checkNull("state", state);
+        EpeAppUtils.checkNull("index", index);
         EpeAppUtils.checkNull("history", history);
         String text = formula.getText();
         text = sheet.inject(text);
-        text = state.inject(text);
+        text = index.inject(text);
         text = history.inject(text);
         EfeServerPoint2D point2D = execJS(text);
         if (point2D == null)
             return false;
-        state.increment(sheet);
+        index.increment(sheet);
         history.add(point2D);
-        if (sheet.isFinished(state))
+        if (sheet.isFinished(index))
             return false;
         return true;
     }
