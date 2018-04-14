@@ -10,69 +10,91 @@ import com.softwarelma.epe.p3.generic.EpeGenericFinalProp_text_to_list_list;
 import com.softwarelma.epe.p3.generic.EpeGenericFinalReplace;
 
 /**
- * comps: history, index, sheet
+ * x: point.x
  * 
- * history: h.size, h.1.x, h.1.y
+ * y: point.y
  * 
- * index:
+ * z: point.z
  * 
- * sheet:
+ * w: width
+ * 
+ * h: height
+ * 
+ * d: depth
+ * 
+ * i: index
+ * 
+ * c: cycle
+ * 
+ * e: edge
+ * 
+ * s: size
+ * 
+ * m: enable maven-like, ${var} instead of var
+ * 
+ * !m: disable maven-like
+ * 
+ * p: enable printing
+ * 
+ * !p: disable printing
  */
 public class EfeServerExecutor {
 
-    public EfeServerHistory start() throws EpeAppException {
+    public EfeServerPoints start() throws EpeAppException {
         EfeServerSheet sheet = this.retrieveFakeSheet();
-        String text = this.retrieveFakeFormula();
-        EfeServerFormula formula = new EfeServerFormula(text);
+        EfeServerFormula formula = this.retrieveFakeFormula();
         EfeServerIndex index = new EfeServerIndex(sheet.getNumberOfLevels());
-        return this.execAll(sheet, formula, index);
+        EfeServerPoints points = this.execAll(sheet, formula, index);
+        System.out.println(points);
+        return points;
     }
 
     private EfeServerSheet retrieveFakeSheet() throws EpeAppException {
-        int[] arrayLevelWindow = new int[] { -1, 5 };
-        int[] arrayLevelLimit = new int[] { 50, 5 };
-        EfeServerSheet sheet = new EfeServerSheet(arrayLevelWindow, arrayLevelLimit);
+        int[] arrayLevelCycle = new int[] { -1, 5 };
+        int[] arrayLevelEdge = new int[] { 15, 5 };
+        EfeServerPoint2D point = new EfeServerPoint2D(200, 200);
+        EfeServerSheet sheet = new EfeServerSheet(point, arrayLevelCycle, arrayLevelEdge);
         return sheet;
     }
 
-    private String retrieveFakeFormula() {
-        String text = "x = ${history.-1.x} - ${history.-2.x} == 0 ? ${history.-1.x} + 10 : ${history.-1.x} \n"
-                + "y = ${history.-1.y} - ${history.-2.y} == 0 ? ${history.-1.y} + 10 : ${history.-1.y}";
-        return text;
+    private EfeServerFormula retrieveFakeFormula() throws EpeAppException {
+        String pre = "x = 10 \n"//
+                + "y = 190";
+        String text = "x = ${-1.x} - ${-2.x} == 0 ? ${-1.x} + 10 : ${-1.x} \n"//
+                + "y = ${-1.y} - ${-2.y} == 0 ? ${-1.y} - 10 : ${-1.y}";
+        EfeServerFormula formula = new EfeServerFormula(pre, text);
+        return formula;
     }
 
-    private EfeServerHistory execAll(EfeServerSheet sheet, EfeServerFormula formula, EfeServerIndex index)
+    private EfeServerPoints execAll(EfeServerSheet sheet, EfeServerFormula formula, EfeServerIndex index)
             throws EpeAppException {
-        EfeServerHistory history = new EfeServerHistory();
-        while (execOnce(sheet, formula, index, history))
+        EfeServerPoints points = new EfeServerPoints();
+        while (this.execOnce(sheet, formula, index, points))
             ;
-        return history;
+        return points;
     }
 
     private boolean execOnce(EfeServerSheet sheet, EfeServerFormula formula, EfeServerIndex index,
-            EfeServerHistory history) throws EpeAppException {
+            EfeServerPoints points) throws EpeAppException {
         EpeAppUtils.checkNull("sheet", sheet);
         EpeAppUtils.checkNull("formula", formula);
         EpeAppUtils.checkNull("index", index);
-        EpeAppUtils.checkNull("history", history);
-        String text = formula.getText();
-        text = sheet.inject(text);
-        text = index.inject(text);
-        text = history.inject(text);
-        EfeServerPoint2D point2D = execJS(text);
+        EpeAppUtils.checkNull("points", points);
+        EfeServerPoint2D point2D = this.execJS(sheet, formula, index, points);
         if (point2D == null)
             return false;
         index.increment(sheet);
-        history.add(point2D);
+        points.add(point2D);
         if (sheet.isFinished(index))
             return false;
         return true;
     }
 
-    private EfeServerPoint2D execJS(String text) throws EpeAppException {
-        EpeAppUtils.checkNull("text", text);
+    private EfeServerPoint2D execJS(EfeServerSheet sheet, EfeServerFormula formula, EfeServerIndex index,
+            EfeServerPoints points) throws EpeAppException {
         EfeServerPoint2D point2D;
-        List<List<String>> listListStr = EpeGenericFinalProp_text_to_list_list.propTextToListList(text);
+        List<List<String>> listListStr = EpeGenericFinalProp_text_to_list_list
+                .propTextToListList(formula.getTextByPhase());
         List<String> listVarName = listListStr.get(0);
         List<String> listPartialFormula = listListStr.get(1);
         List<String> listVarNameCalculated = new ArrayList<>(listVarName.size());
@@ -85,10 +107,12 @@ public class EfeServerExecutor {
             EpeAppUtils.checkNull("varName", varName);
             String partialFormula = listPartialFormula.get(i);
             EpeAppUtils.checkNull("partialFormula", partialFormula);
-            while (partialFormula.contains("${"))
-                partialFormula = EpeGenericFinalReplace.replace(true, partialFormula, listVarNameCalculated,
-                        listVarValue);
-            EpeAppUtils.checkNull("partialFormula", partialFormula);
+            while (partialFormula.contains("${"))// TODO !maven?
+                partialFormula = EpeGenericFinalReplace.replace(formula.isMavenLike(), partialFormula,
+                        listVarNameCalculated, listVarValue);
+            partialFormula = sheet.inject(formula.isMavenLike(), partialFormula);
+            partialFormula = index.inject(formula.isMavenLike(), partialFormula);
+            partialFormula = points.inject(formula.isMavenLike(), partialFormula);
             String varValue = EpeGenericFinalCalc.retrieveCalc(partialFormula);
             EpeAppUtils.checkNull("varValue", varValue);
             if (varName.equals("x"))
