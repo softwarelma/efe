@@ -35,8 +35,8 @@ public class EfeServerIndex {
         return text;
     }
 
-    public void increment(EfeServerSheet sheet) throws EpeAppException {
-        this.levelsIndex.increment(sheet);
+    public boolean incrementLevelAndIsModule(EfeServerSheet sheet) throws EpeAppException {
+        return this.levelsIndex.incrementLevelAndIsModule(sheet);
     }
 
     public int getLevelIndex(int i) throws EpeAppException {

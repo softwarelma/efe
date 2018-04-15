@@ -8,7 +8,7 @@ public class EfeServerSheet {
 
     private final EfeServerPoint2D pointSize;
     private final EfeServerLevels levelsCycle;
-    private final EfeServerLevels levelsEdge;
+    private final EfeServerLevels levelsEdge;// TODO rename edge to avoid e
 
     @Override
     public String toString() {
@@ -27,8 +27,8 @@ public class EfeServerSheet {
     }
 
     public String inject(boolean mavenLike, String text) throws EpeAppException {
-        text = EpeGenericFinalReplace.replace(mavenLike, text, "w", this.pointSize.getX() + "");
-        text = EpeGenericFinalReplace.replace(mavenLike, text, "h", this.pointSize.getY() + "");
+        text = EpeGenericFinalReplace.replace(mavenLike, text, "w", this.getWidth() + "");
+        text = EpeGenericFinalReplace.replace(mavenLike, text, "h", this.getHeight() + "");
         text = EfeServerIndex.inject(mavenLike, text, "c", this.levelsCycle);
         text = EfeServerIndex.inject(mavenLike, text, "e", this.levelsEdge);
         return text;
@@ -50,6 +50,14 @@ public class EfeServerSheet {
         }
 
         return finished;
+    }
+
+    public int getWidth() {
+        return this.pointSize.getX();
+    }
+
+    public int getHeight() {
+        return this.pointSize.getY();
     }
 
     public int getNumberOfLevels() {

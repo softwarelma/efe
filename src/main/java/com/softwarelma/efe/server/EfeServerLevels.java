@@ -69,14 +69,15 @@ public class EfeServerLevels {
         return false;
     }
 
-    public void increment(EfeServerSheet sheet) throws EpeAppException {
+    public boolean incrementLevelAndIsModule(EfeServerSheet sheet) throws EpeAppException {
         EpeAppUtils.checkEquals("this.type", Type.index.toString(), this.type, Type.index);
         if (this.tryStart())
-            return;
+            return true;
         this.arrayLevel[0]++;
         for (int i = 1; i < this.arrayLevel.length; i++)
             if (!this.incrementLevelAndIsModule(sheet, i))
-                return;
+                return false;
+        return true;
     }
 
     private boolean incrementLevelAndIsModule(EfeServerSheet sheet, int i) throws EpeAppException {

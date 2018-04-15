@@ -1,26 +1,32 @@
 package com.softwarelma.efe.server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.softwarelma.epe.p1.app.EpeAppException;
 import com.softwarelma.epe.p1.app.EpeAppUtils;
 
 public class EfeServerFormula {
 
-    // TODO once pre
-    // TODO once post
-    // TODO main one
+    // TODO list pre
+    // TODO list post
     // TODO condition one
     // TODO list (for cond)
 
-    private String phase;
     private boolean mavenLike = true;
-    private final String pre;
+    // private final List<String> listPre;
+    // private final String selector;
+    // private final List<String> listText;
     private final String text;
 
-    public EfeServerFormula(String pre, String text) throws EpeAppException {
-        EpeAppUtils.checkNull("text", text);
-        this.pre = pre;
+    public EfeServerFormula(
+            /* List<String> listPre, String selector, List<String> listText */String text) throws EpeAppException {
+        // EpeAppUtils.checkEmptyList("listText", listText);
+        // this.listPre = new ArrayList<>(listPre);
+        // this.selector = selector;
+        // this.listText = new ArrayList<>(listText);
+        EpeAppUtils.checkEmpty("text", text);
         this.text = text;
-        this.phase = this.pre == null ? "text" : "pre";
     }
 
     public boolean isMavenLike() {
@@ -31,21 +37,17 @@ public class EfeServerFormula {
         this.mavenLike = mavenLike;
     }
 
-    public String getPre() {
-        return this.pre;
-    }
-
     public String getText() {
-        return this.text;
+        return text;
     }
 
-    public String getTextByPhase() {
-        if (this.phase.equals("pre")) {
-            this.phase = "text";
-            return this.getPre();
-        }
-
-        return this.getText();
-    }
+    // public String getSelector() {
+    // return selector;
+    // }
+    //
+    // public String getTextByPhase() throws EpeAppException {
+    // return EpeAppUtils.isEmptyList(this.listPre) ? this.listText.get(0) :
+    // this.listPre.remove(0);
+    // }
 
 }
