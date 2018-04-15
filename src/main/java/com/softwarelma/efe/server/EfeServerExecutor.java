@@ -27,11 +27,11 @@ import com.softwarelma.epe.p3.generic.EpeGenericFinalReplace;
  * 
  * d: depth
  * 
- * i: index
+ * i: index, TODO imaginary=
  * 
  * c: cycle
  * 
- * e: edge
+ * e: edge, TODO exponential?
  * 
  * s: size
  * 
@@ -64,7 +64,7 @@ public class EfeServerExecutor {
 
         for (int i = 0; i < points.size(); i++) {
             String pointsStr = points.getListPointAsString(i);
-            System.out.println(pointsStr);
+            System.out.println(i + " = " + pointsStr);
             String polyling = this.retrievePolyline();
             polyling = EpeGenericFinalReplace.replace(true, polyling, "points", pointsStr);
             template = EpeGenericFinalReplace.replace(true, template, "polyline", polyling + "\n\t\t${polyline}");
@@ -90,9 +90,9 @@ public class EfeServerExecutor {
     }
 
     private EfeServerSheet retrieveFakeSheet() throws EpeAppException {
-        int[] arrayLevelCycle = new int[] { -1, 30, 3, 2 };
-        int[] arrayLevelEdge = new int[] { 250, 30, 3, 2 };
-        EfeServerPoint2D pointSize = new EfeServerPoint2D(700, 700);
+        int[] arrayLevelCycle = new int[] { -1, 4, 2 };
+        int[] arrayLevelEdge = new int[] { -1, 4, 2 };
+        EfeServerPoint2D pointSize = new EfeServerPoint2D(800, 450);
         EfeServerSheet sheet = new EfeServerSheet(pointSize, arrayLevelCycle, arrayLevelEdge);
         return sheet;
     }
@@ -109,10 +109,10 @@ public class EfeServerExecutor {
         // + "y = ${-1.y} - ${-2.y} == 0 ? ${-1.y} - 10 : ${-1.y}";
         // List<String> listText = Arrays.asList(text);
 
-        String text = "x = ${s} == 0 ? 0 : ( ${i.1} % 2 == 0 ? ${i.1} * 5 : ${i.1} * 5 + 5 ) \n"//
-                + "y = ${s} == 0 ? 5 : ( ${i.1} % 2 == 1 ? ${i.1} * 5 : ${i.1} * 5 + 5 ) \n"//
-                + "y = ${s} == 0 ? 5 : ${y} + ${i.2} * 30 \n"//
-                + "x = ${s} == 0 ? 0 : ${x} + ${i.3} * 150";
+        String text = "x = ${i.1} % 2 == 0 ? ${i.1} * 10 : ${i.1} * 10 + 10 \n"//
+                + "y = ${i.1} % 2 == 1 ? ${i.1} * 10 : ${i.1} * 10 + 10 \n"//
+                + "y = ${y} + ${i.2} * 30 \n";//
+        // + "x = ${x} + ${i.3} * 150";
         EfeServerFormula formula = new EfeServerFormula(text);
 
         // new EfeServerFormula(listPre, selector, listText);
@@ -136,7 +136,7 @@ public class EfeServerExecutor {
         EfeServerPoint2D point = this.execJS(sheet, formula, index, points);
         if (point == null)
             return false;
-        points.add(point, index.incrementLevelAndIsModule(sheet));
+        points.add(point, index.isModuleAndIncrementLevel(sheet));
         if (sheet.isFinished(index))
             return false;
         return true;
@@ -164,7 +164,9 @@ public class EfeServerExecutor {
             partialFormula = sheet.inject(formula.isMavenLike(), partialFormula);
             partialFormula = index.inject(formula.isMavenLike(), partialFormula);
             partialFormula = points.inject(formula.isMavenLike(), partialFormula);
+            // System.out.print(partialFormula + " --> ");// FIXME
             String varValue = EpeGenericFinalCalc.retrieveCalc(partialFormula);
+            // System.out.println(varValue);// FIXME
             EpeAppUtils.checkNull("varValue", varValue);
             if (varName.equals("x"))
                 x = EpeAppUtils.parseInt(varValue);

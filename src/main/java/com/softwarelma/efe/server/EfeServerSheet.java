@@ -35,6 +35,7 @@ public class EfeServerSheet {
     }
 
     public boolean isFinished(EfeServerIndex index) throws EpeAppException {
+        EpeAppUtils.checkNull("index", index);
         if (this.getLevelEdge(0) != -1 && index.getLevelIndex(0) >= this.getLevelEdge(0))
             return true;
         boolean finished = false;

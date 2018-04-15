@@ -19,8 +19,8 @@ public class EfeServerLevels {
             throw new EpeAppException("The numberOfLevels is < 1: " + numberOfLevels);
         this.type = Type.index;
         this.arrayLevel = new int[numberOfLevels];
-        for (int i = 0; i < this.arrayLevel.length; i++)
-            this.arrayLevel[i] = -1;
+        // for (int i = 0; i < this.arrayLevel.length; i++)
+        // this.arrayLevel[i] = -1;
     }
 
     @Override
@@ -33,11 +33,12 @@ public class EfeServerLevels {
         EpeAppUtils.checkNull("arrayLevel", arrayLevel);
         this.type = type;
         this.arrayLevel = new int[arrayLevel.length];
-        validateNoIndex(this.type, arrayLevel);
+        // validateNoIndex(this.type, arrayLevel);
         for (int i = 0; i < arrayLevel.length; i++)
             this.arrayLevel[i] = arrayLevel[i];
     }
 
+    // TODO ?
     private static void validateNoIndex(Type type, int[] arrayLevel) throws EpeAppException {
         EpeAppUtils.checkNull("type", type.equals(Type.index) ? null : type);
 
@@ -59,31 +60,43 @@ public class EfeServerLevels {
         }
     }
 
-    public boolean tryStart() {
-        if (this.arrayLevel[0] == -1) {
-            for (int i = 0; i < this.arrayLevel.length; i++)
-                this.arrayLevel[i] = 0;
-            return true;
-        }
+    // public boolean tryStart() {
+    // if (this.arrayLevel[0] == -1) {
+    // for (int i = 0; i < this.arrayLevel.length; i++)
+    // this.arrayLevel[i] = 0;
+    // return true;
+    // }
+    //
+    // return false;
+    // }
 
-        return false;
+    public void checkTypeIndex() throws EpeAppException {
+        EpeAppUtils.checkEquals("this.type", Type.index.toString(), this.type, Type.index);
     }
 
-    public boolean incrementLevelAndIsModule(EfeServerSheet sheet) throws EpeAppException {
-        EpeAppUtils.checkEquals("this.type", Type.index.toString(), this.type, Type.index);
-        if (this.tryStart())
-            return true;
+    public boolean isModuleAndIncrementLevel(EfeServerSheet sheet) throws EpeAppException {
+        this.checkTypeIndex();
+        // if (this.tryStart())
+        // return true;
         this.arrayLevel[0]++;
-        for (int i = 1; i < this.arrayLevel.length; i++)
-            if (!this.incrementLevelAndIsModule(sheet, i))
-                return false;
+        boolean isModule = false;
+
+        for (int i = 1; i < this.arrayLevel.length; i++) {
+            if (this.isModuleAndIncrementLevel(sheet, i)) {
+                isModule = true;
+            } else {
+                return isModule;
+            }
+        }
+
         return true;
     }
 
-    private boolean incrementLevelAndIsModule(EfeServerSheet sheet, int i) throws EpeAppException {
+    private boolean isModuleAndIncrementLevel(EfeServerSheet sheet, int i) throws EpeAppException {
+        boolean isModule = this.arrayLevel[i] == 0;
         this.arrayLevel[i]++;
-        this.arrayLevel[i] = this.arrayLevel[i] % sheet.getLevelCycle(i);
-        return this.arrayLevel[i] == 0;
+        this.arrayLevel[i] = this.arrayLevel[i] % (sheet.getLevelCycle(i) + 1);
+        return isModule;
     }
 
     public int getLevel(int i) throws EpeAppException {
