@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.softwarelma.efe.main.EfeMainConstants;
 import com.softwarelma.epe.p1.app.EpeAppException;
 import com.softwarelma.epe.p1.app.EpeAppUtils;
 import com.softwarelma.epe.p2.encodings.EpeEncodingsResponse;
@@ -46,8 +47,8 @@ import com.softwarelma.epe.p3.generic.EpeGenericFinalReplace;
 public class EfeServerExecutor {
 
     public EfeServerPoints start() throws EpeAppException {
-        EfeServerSheet sheet = this.retrieveFakeSheet();
-        EfeServerFormula formula = this.retrieveFakeFormula();
+        EfeServerSheet sheet = this.retrieveSheet();
+        EfeServerFormula formula = this.retrieveFormula();
         EfeServerIndex index = new EfeServerIndex(sheet.getNumberOfLevels());
         EfeServerPoints points = this.execAll(sheet, formula, index);
         this.writePage(points, sheet);
@@ -57,7 +58,8 @@ public class EfeServerExecutor {
     private void writePage(EfeServerPoints points, EfeServerSheet sheet) throws EpeAppException {
         EfeServerPoints borderPoints = this.retrieveBorderPoints(sheet);
         String borderPointsStr = borderPoints.getListPointAsString(0);
-        EpeEncodingsResponse response = EpeDiskFinalFread_encoding.fRead(false, "templates/template-page.html", null);
+        EpeEncodingsResponse response = EpeDiskFinalFread_encoding.fRead(false, EfeMainConstants.FILE_TEMPLATE_EFE_HTML,
+                null);
         String template = response.getFileContent();
         template = EpeGenericFinalReplace.replace(true, template, Arrays.asList("w", "h", "borderPoints"),
                 Arrays.asList(sheet.getWidth() + "", sheet.getHeight() + "", borderPointsStr));
@@ -71,8 +73,7 @@ public class EfeServerExecutor {
         }
 
         template = EpeGenericFinalReplace.replace(true, template, "polyline", "");
-        String filename = "pages/efe.html";
-        EpeDiskFinalFwrite.fWrite(false, filename, template, response.getEncoding(), false);
+        EpeDiskFinalFwrite.fWrite(false, EfeMainConstants.FILE_EFE_HTML, template, response.getEncoding(), false);
     }
 
     private String retrievePolyline() {
@@ -89,34 +90,44 @@ public class EfeServerExecutor {
         return borderPoints;
     }
 
-    private EfeServerSheet retrieveFakeSheet() throws EpeAppException {
-        int[] arrayLevelCycle = new int[] { -1, 4, 2 };
-        int[] arrayLevelEdge = new int[] { -1, 4, 2 };
-        EfeServerPoint2D pointSize = new EfeServerPoint2D(800, 450);
-        EfeServerSheet sheet = new EfeServerSheet(pointSize, arrayLevelCycle, arrayLevelEdge);
-        return sheet;
+    private EfeServerSheet retrieveSheet() throws EpeAppException {
+        try {
+            String text = EpeDiskFinalFread.fReadAsString(false, EfeMainConstants.FILE_SHEET, null);
+            List<List<String>> listListStr = EpeGenericFinalProp_text_to_list_list.propTextToListList(text);
+            List<String> listKey = listListStr.get(0);
+            List<String> listVal = listListStr.get(1);
+
+            String c = listVal.get(listKey.indexOf("c"));
+            String e = listVal.get(listKey.indexOf("e"));
+            String w = listVal.get(listKey.indexOf("w"));
+            String h = listVal.get(listKey.indexOf("h"));
+
+            String[] arrayC = c.split("\\,");
+            int[] arrayLevelCycle = new int[arrayC.length];
+            for (int i = 0; i < arrayC.length; i++)
+                arrayLevelCycle[i] = Integer.parseInt(EpeAppUtils.retrieveVisualTrim(arrayC[i]));
+
+            String[] arrayE = e.split("\\,");
+            int[] arrayLevelEdge = new int[arrayE.length];
+            for (int i = 0; i < arrayE.length; i++)
+                arrayLevelEdge[i] = Integer.parseInt(EpeAppUtils.retrieveVisualTrim(arrayE[i]));
+
+            EfeServerPoint2D pointSize = new EfeServerPoint2D(Integer.parseInt(w), Integer.parseInt(h));
+            EfeServerSheet sheet = new EfeServerSheet(pointSize, arrayLevelCycle, arrayLevelEdge);
+            return sheet;
+        } catch (Exception e) {
+            throw new EpeAppException("retrieveSheet", e);
+        }
     }
 
-    private EfeServerFormula retrieveFakeFormula() throws EpeAppException {
-        // String pre0 = "x = 10 \n"//
-        // + "y = 190";
-        // String pre1 = "x = 20 \n"//
-        // + "y = 190";
-        // List<String> listPre = Arrays.asList(pre0, pre1);
-        // String selector = null;
-        // String text = "x = ${-1.x} - ${-2.x} == 0 ? ${-1.x} + 10 : ${-1.x}
-        // \n"//
-        // + "y = ${-1.y} - ${-2.y} == 0 ? ${-1.y} - 10 : ${-1.y}";
-        // List<String> listText = Arrays.asList(text);
-
-        String text = "x = ${i.1} % 2 == 0 ? ${i.1} * 10 : ${i.1} * 10 + 10 \n"//
-                + "y = ${i.1} % 2 == 1 ? ${i.1} * 10 : ${i.1} * 10 + 10 \n"//
-                + "y = ${y} + ${i.2} * 30 \n";//
-        // + "x = ${x} + ${i.3} * 150";
-        EfeServerFormula formula = new EfeServerFormula(text);
-
-        // new EfeServerFormula(listPre, selector, listText);
-        return formula;
+    private EfeServerFormula retrieveFormula() throws EpeAppException {
+        try {
+            String text = EpeDiskFinalFread.fReadAsString(false, EfeMainConstants.FILE_FORMULA, null);
+            EfeServerFormula formula = new EfeServerFormula(text);
+            return formula;
+        } catch (Exception e) {
+            throw new EpeAppException("retrieveFormula", e);
+        }
     }
 
     private EfeServerPoints execAll(EfeServerSheet sheet, EfeServerFormula formula, EfeServerIndex index)
