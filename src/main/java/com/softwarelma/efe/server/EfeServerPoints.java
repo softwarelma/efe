@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.softwarelma.epe.p1.app.EpeAppException;
+import com.softwarelma.epe.p1.app.EpeAppRuntimeException;
 import com.softwarelma.epe.p1.app.EpeAppUtils;
 import com.softwarelma.epe.p3.generic.EpeGenericFinalReplace;
 
@@ -13,7 +14,24 @@ public class EfeServerPoints {
 
     @Override
     public String toString() {
-        return this.listListPoint.toString();
+        StringBuilder sb = new StringBuilder();
+        String sep = "";
+
+        try {
+            for (int i = 0; i < this.listListPoint.size(); i++) {
+                sb.append(sep);
+                sep = "\n";
+                sb.append(i);
+                sb.append(" [size=");
+                sb.append(this.size(i));
+                sb.append("] = ");
+                sb.append(this.getListPointAsString(i));
+            }
+        } catch (EpeAppException e) {
+            throw new EpeAppRuntimeException("EfeServerPoints.toString", e);
+        }
+
+        return sb.toString();
     }
 
     public String getListPointAsString(int i) throws EpeAppException {
@@ -37,11 +55,15 @@ public class EfeServerPoints {
         return this.listListPoint.size();
     }
 
+    public int size(int i) {
+        return this.listListPoint.get(i).size();
+    }
+
     public void add(EfeServerPoint2D point, boolean isModule) throws EpeAppException {
         EpeAppUtils.checkNull("point", point);
         List<EfeServerPoint2D> listPoint;
 
-        if (isModule) {
+        if (isModule || this.listListPoint.isEmpty()) {
             listPoint = new ArrayList<>();
             this.listListPoint.add(listPoint);
         } else {
@@ -69,6 +91,12 @@ public class EfeServerPoints {
             text = EpeGenericFinalReplace.replace(mavenLike, text, i + ".y", point.getY() + "");
             text = EpeGenericFinalReplace.replace(mavenLike, text, "-" + (size - i) + ".y", point.getY() + "");
         }
+
+        if (mavenLike && text.contains("${") || !mavenLike && (text.contains(".x") || text.contains(".y")))
+            for (int i = 1; i <= 9; i++) {
+                text = EpeGenericFinalReplace.replace(mavenLike, text, "-" + i + ".x", "0");
+                text = EpeGenericFinalReplace.replace(mavenLike, text, "-" + i + ".y", "0");
+            }
 
         return text;
     }

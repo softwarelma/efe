@@ -66,7 +66,6 @@ public class EfeServerExecutor {
 
         for (int i = 0; i < points.size(); i++) {
             String pointsStr = points.getListPointAsString(i);
-            System.out.println(i + " = " + pointsStr);
             String polyling = this.retrievePolyline();
             polyling = EpeGenericFinalReplace.replace(true, polyling, "points", pointsStr);
             template = EpeGenericFinalReplace.replace(true, template, "polyline", polyling + "\n\t\t${polyline}");
@@ -74,6 +73,7 @@ public class EfeServerExecutor {
 
         template = EpeGenericFinalReplace.replace(true, template, "polyline", "");
         EpeDiskFinalFwrite.fWrite(false, EfeMainConstants.FILE_EFE_HTML, template, response.getEncoding(), false);
+        System.out.println(points);
     }
 
     private String retrievePolyline() {
@@ -147,8 +147,9 @@ public class EfeServerExecutor {
         EfeServerPoint2D point = this.execJS(sheet, formula, index, points);
         if (point == null)
             return false;
-        points.add(point, index.isModuleAndIncrementLevel(sheet));
-        if (sheet.isFinished(index))
+        boolean[] isModuleAndIsFinished = index.isModuleAndIsFinishedAndIncrementLevel(sheet);
+        points.add(point, isModuleAndIsFinished[0]);
+        if (isModuleAndIsFinished[1])
             return false;
         return true;
     }

@@ -25,7 +25,8 @@ public class EfeServerLevels {
 
     @Override
     public String toString() {
-        return "[type=" + type + ", arrayLevel=" + Arrays.toString(arrayLevel) + "]";
+        String str = Arrays.toString(arrayLevel);
+        return type.toString().substring(0, 1) + " = " + str.substring(1, str.length() - 1);
     }
 
     public EfeServerLevels(Type type, int[] arrayLevel) throws EpeAppException {
@@ -74,31 +75,45 @@ public class EfeServerLevels {
         EpeAppUtils.checkEquals("this.type", Type.index.toString(), this.type, Type.index);
     }
 
-    public boolean isModuleAndIncrementLevel(EfeServerSheet sheet) throws EpeAppException {
+    public boolean[] isModuleAndIsFinishedAndIncrementLevel(EfeServerSheet sheet) throws EpeAppException {
+        EpeAppUtils.checkNull("sheet", sheet);
         this.checkTypeIndex();
         // if (this.tryStart())
         // return true;
         this.arrayLevel[0]++;
         boolean isModule = false;
+        boolean[] isModuleAndIsFinished = null;
 
         for (int i = 1; i < this.arrayLevel.length; i++) {
-            if (this.isModuleAndIncrementLevel(sheet, i)) {
+            isModuleAndIsFinished = this.isModuleAndIsFinishedAndIncrementLevel(sheet, i);
+
+            if (isModuleAndIsFinished[0]) {
                 isModule = true;
             } else {
-                return isModule;
+                isModuleAndIsFinished[0] = isModule;
+                return isModuleAndIsFinished;
             }
         }
 
-        return true;
+        EpeAppUtils.checkNull("isModuleAndIsFinished", isModuleAndIsFinished);
+        EpeAppUtils.checkBooleanForceTrue("isModule", isModuleAndIsFinished[0]);
+        return isModuleAndIsFinished;
     }
 
-    private boolean isModuleAndIncrementLevel(EfeServerSheet sheet, int i) throws EpeAppException {
-        boolean isModule = this.arrayLevel[i] == 0;
+    private boolean[] isModuleAndIsFinishedAndIncrementLevel(EfeServerSheet sheet, int i) throws EpeAppException {
+        boolean[] isModuleAndIsFinished = new boolean[2];
         this.arrayLevel[i]++;
-        this.arrayLevel[i] = this.arrayLevel[i] % (sheet.getLevelCycle(i) + 1);
-        return isModule;
+        isModuleAndIsFinished[1] = sheet.isFinished(this);
+        this.arrayLevel[i] = this.arrayLevel[i] % sheet.getLevelCycle(i) ;
+        isModuleAndIsFinished[0] = this.arrayLevel[i] == 0 && this.arrayLevel[0] > 1;
+        return isModuleAndIsFinished;
     }
 
+    /*
+0 [size=3] = 0,20 40,20 40,60
+1 [size=4] = 80,60 0,170 40,170 40,210
+     */
+    
     public int getLevel(int i) throws EpeAppException {
         EpeAppUtils.checkRange(i, 0, this.arrayLevel.length, false, true, "level index", null);
         return this.arrayLevel[i];

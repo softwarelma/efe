@@ -35,8 +35,8 @@ public class EfeServerIndex {
         return text;
     }
 
-    public boolean isModuleAndIncrementLevel(EfeServerSheet sheet) throws EpeAppException {
-        return this.levelsIndex.isModuleAndIncrementLevel(sheet);
+    public boolean[] isModuleAndIsFinishedAndIncrementLevel(EfeServerSheet sheet) throws EpeAppException {
+        return this.levelsIndex.isModuleAndIsFinishedAndIncrementLevel(sheet);
     }
 
     public int getLevelIndex(int i) throws EpeAppException {

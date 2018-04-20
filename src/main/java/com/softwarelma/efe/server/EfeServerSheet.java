@@ -12,8 +12,8 @@ public class EfeServerSheet {
 
     @Override
     public String toString() {
-        return "EfeServerSheet [\n\tpointSize=" + pointSize + ", \n\tlevelsCycle=" + levelsCycle + ", \n\tlevelsEdge="
-                + levelsEdge + "]";
+        return "w = " + this.pointSize.getX() + "\nh = " + this.pointSize.getY() + "\n" + this.levelsCycle + "\n"
+                + this.levelsEdge;
     }
 
     public EfeServerSheet(EfeServerPoint2D pointSize, int[] arrayLevelCycle, int[] arrayLevelEdge)
@@ -34,15 +34,16 @@ public class EfeServerSheet {
         return text;
     }
 
-    public boolean isFinished(EfeServerIndex index) throws EpeAppException {
-        EpeAppUtils.checkNull("index", index);
-        if (this.getLevelEdge(0) != -1 && index.getLevelIndex(0) >= this.getLevelEdge(0))
+    public boolean isFinished(EfeServerLevels levelsIndex) throws EpeAppException {
+        EpeAppUtils.checkNull("levelsIndex", levelsIndex);
+        if (this.getLevelEdge(0) != -1 && levelsIndex.getLevel(0) >= this.getLevelEdge(0))
             return true;
         boolean finished = false;
 
         for (int i = this.getNumberOfLevels() - 1; i > 0; i--) {
             if (this.getLevelEdge(i) != -1) {
-                if (index.getLevelIndex(i) < this.getLevelEdge(i)) {
+                // FIXME debug
+                if (levelsIndex.getLevel(i) < this.getLevelEdge(i)) {
                     return false;
                 } else {
                     finished = true;
