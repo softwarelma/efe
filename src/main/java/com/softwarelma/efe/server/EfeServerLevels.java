@@ -61,59 +61,69 @@ public class EfeServerLevels {
         }
     }
 
-    // public boolean tryStart() {
-    // if (this.arrayLevel[0] == -1) {
-    // for (int i = 0; i < this.arrayLevel.length; i++)
-    // this.arrayLevel[i] = 0;
-    // return true;
-    // }
-    //
-    // return false;
-    // }
-
     public void checkTypeIndex() throws EpeAppException {
         EpeAppUtils.checkEquals("this.type", Type.index.toString(), this.type, Type.index);
     }
 
-    public boolean[] isModuleAndIsFinishedAndIncrementLevel(EfeServerSheet sheet) throws EpeAppException {
+    public boolean incrementLevelAndIsFinished(EfeServerSheet sheet) throws EpeAppException {
         EpeAppUtils.checkNull("sheet", sheet);
         this.checkTypeIndex();
-        // if (this.tryStart())
-        // return true;
+        int maxModuleLevel = this.incrementLevelAndGetMaxModuleLevel(sheet);
+        return this.isFinished(sheet, maxModuleLevel);
+    }
+
+    /**
+     * closed-interval index-based cycle
+     */
+    private int incrementLevelAndGetMaxModuleLevel(EfeServerSheet sheet) throws EpeAppException {
         this.arrayLevel[0]++;
-        boolean isModule = false;
-        boolean[] isModuleAndIsFinished = null;
+        int maxModuleLevel = -1;
 
         for (int i = 1; i < this.arrayLevel.length; i++) {
-            isModuleAndIsFinished = this.isModuleAndIsFinishedAndIncrementLevel(sheet, i);
+            this.arrayLevel[i]++;
+            // closed-interval index-based module
+            this.arrayLevel[i] = this.arrayLevel[i] % (sheet.getLevelCycle(i) + 1);
+            maxModuleLevel = this.arrayLevel[i] == 0 ? i : maxModuleLevel;
+            if (this.arrayLevel[i] != 0)
+                return maxModuleLevel;
+        }
 
-            if (isModuleAndIsFinished[0]) {
-                isModule = true;
-            } else {
-                isModuleAndIsFinished[0] = isModule;
-                return isModuleAndIsFinished;
+        return maxModuleLevel;
+    }
+
+    /**
+     * closed-interval index-based edge
+     */
+    private boolean isFinished(EfeServerSheet sheet, int maxModuleLevel) throws EpeAppException {
+        // closed-interval index-based limit
+        Integer limitedLevel = null;
+
+        for (int i = 0; i < this.arrayLevel.length; i++) {
+            if (sheet.getLevelEdge(i) != -1) {
+                limitedLevel = i;
             }
         }
 
-        EpeAppUtils.checkNull("isModuleAndIsFinished", isModuleAndIsFinished);
-        EpeAppUtils.checkBooleanForceTrue("isModule", isModuleAndIsFinished[0]);
-        return isModuleAndIsFinished;
+        EpeAppUtils.checkNull("limitedLevel", limitedLevel);
+        int cycle = sheet.getLevelCycle(limitedLevel);
+        int edge = sheet.getLevelEdge(limitedLevel);
+        int index = this.arrayLevel[limitedLevel];
+
+        if (limitedLevel == 0) {
+            return index > edge;
+        }
+
+        if (index > edge) {
+            return true;
+        }
+
+        if (limitedLevel <= maxModuleLevel && index == 0 && edge == cycle) {
+            return true;
+        }
+
+        return false;
     }
 
-    private boolean[] isModuleAndIsFinishedAndIncrementLevel(EfeServerSheet sheet, int i) throws EpeAppException {
-        boolean[] isModuleAndIsFinished = new boolean[2];
-        this.arrayLevel[i]++;
-        isModuleAndIsFinished[1] = sheet.isFinished(this);
-        this.arrayLevel[i] = this.arrayLevel[i] % sheet.getLevelCycle(i) ;
-        isModuleAndIsFinished[0] = this.arrayLevel[i] == 0 && this.arrayLevel[0] > 1;
-        return isModuleAndIsFinished;
-    }
-
-    /*
-0 [size=3] = 0,20 40,20 40,60
-1 [size=4] = 80,60 0,170 40,170 40,210
-     */
-    
     public int getLevel(int i) throws EpeAppException {
         EpeAppUtils.checkRange(i, 0, this.arrayLevel.length, false, true, "level index", null);
         return this.arrayLevel[i];

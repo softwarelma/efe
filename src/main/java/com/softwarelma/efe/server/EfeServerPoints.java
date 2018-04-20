@@ -63,7 +63,7 @@ public class EfeServerPoints {
         EpeAppUtils.checkNull("point", point);
         List<EfeServerPoint2D> listPoint;
 
-        if (isModule || this.listListPoint.isEmpty()) {
+        if (isModule) {
             listPoint = new ArrayList<>();
             this.listListPoint.add(listPoint);
         } else {

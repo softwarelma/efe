@@ -146,17 +146,13 @@ public class EfeServerExecutor {
         EpeAppUtils.checkNull("formula", formula);
         EpeAppUtils.checkNull("index", index);
         EpeAppUtils.checkNull("points", points);
-        EfeServerPoint2D point = this.execJS(sheet, formula, index, points);
-        if (point == null)
-            return false;
-        boolean[] isModuleAndIsFinished = index.isModuleAndIsFinishedAndIncrementLevel(sheet);
-        points.add(point, isModuleAndIsFinished[0]);
-        if (isModuleAndIsFinished[1])
-            return false;
-        return true;
+        EfeServerPoint2D point = this.execOnceJS(sheet, formula, index, points);
+        EpeAppUtils.checkNull("point", point);
+        points.add(point, index.getLevelIndex(1) == 0);
+        return !index.incrementLevelAndIsFinished(sheet);
     }
 
-    private EfeServerPoint2D execJS(EfeServerSheet sheet, EfeServerFormula formula, EfeServerIndex index,
+    private EfeServerPoint2D execOnceJS(EfeServerSheet sheet, EfeServerFormula formula, EfeServerIndex index,
             EfeServerPoints points) throws EpeAppException {
         EfeServerPoint2D point2D;
         List<List<String>> listListStr = EpeGenericFinalProp_text_to_list_list.propTextToListList(formula.getText());// formula.getTextByPhase());
@@ -186,14 +182,26 @@ public class EfeServerExecutor {
                 x = EpeAppUtils.parseInt(varValue);
             if (varName.equals("y"))
                 y = EpeAppUtils.parseInt(varValue);
-            listVarNameCalculated.add(varName);
-            listVarValue.add(varValue);
+            this.addVarNameAndValue(listVarNameCalculated, listVarValue, varName, varValue);
         }
 
         EpeAppUtils.checkNull("x", x);
         EpeAppUtils.checkNull("y", y);
         point2D = new EfeServerPoint2D(x, y);
         return point2D;
+    }
+
+    private void addVarNameAndValue(List<String> listVarNameCalculated, List<String> listVarValue, String varName,
+            String varValue) {
+        int ind = listVarNameCalculated.indexOf(varName);
+
+        if (ind == -1) {
+            listVarNameCalculated.add(varName);
+            listVarValue.add(varValue);
+        } else {
+            listVarNameCalculated.set(ind, varName);
+            listVarValue.set(ind, varValue);
+        }
     }
 
 }

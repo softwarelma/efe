@@ -42,7 +42,6 @@ public class EfeServerSheet {
 
         for (int i = this.getNumberOfLevels() - 1; i > 0; i--) {
             if (this.getLevelEdge(i) != -1) {
-                // FIXME debug
                 if (levelsIndex.getLevel(i) < this.getLevelEdge(i)) {
                     return false;
                 } else {
