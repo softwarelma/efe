@@ -2,6 +2,7 @@ package com.softwarelma.efe.server;
 
 import com.softwarelma.epe.p1.app.EpeAppException;
 import com.softwarelma.epe.p1.app.EpeAppUtils;
+import com.softwarelma.epe.p3.generic.EpeGenericFinalClean_comment;
 
 public class EfeServerFormula {
 
@@ -10,7 +11,7 @@ public class EfeServerFormula {
 
     public EfeServerFormula(String text) throws EpeAppException {
         EpeAppUtils.checkEmpty("text", text);
-        this.text = text;
+        this.text = EpeGenericFinalClean_comment.cleanComment(text);
     }
 
     @Override

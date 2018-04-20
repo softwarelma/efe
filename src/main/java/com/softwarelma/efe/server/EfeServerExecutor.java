@@ -12,6 +12,7 @@ import com.softwarelma.epe.p3.disk.EpeDiskFinalFread;
 import com.softwarelma.epe.p3.disk.EpeDiskFinalFread_encoding;
 import com.softwarelma.epe.p3.disk.EpeDiskFinalFwrite;
 import com.softwarelma.epe.p3.generic.EpeGenericFinalCalc;
+import com.softwarelma.epe.p3.generic.EpeGenericFinalClean_comment;
 import com.softwarelma.epe.p3.generic.EpeGenericFinalProp_text_to_list_list;
 import com.softwarelma.epe.p3.generic.EpeGenericFinalReplace;
 
@@ -93,6 +94,7 @@ public class EfeServerExecutor {
     private EfeServerSheet retrieveSheet() throws EpeAppException {
         try {
             String text = EpeDiskFinalFread.fReadAsString(false, EfeMainConstants.FILE_SHEET, null);
+            text = EpeGenericFinalClean_comment.cleanComment(text);
             List<List<String>> listListStr = EpeGenericFinalProp_text_to_list_list.propTextToListList(text);
             List<String> listKey = listListStr.get(0);
             List<String> listVal = listListStr.get(1);
