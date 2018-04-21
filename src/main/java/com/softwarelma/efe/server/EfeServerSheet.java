@@ -18,12 +18,19 @@ public class EfeServerSheet {
 
     public EfeServerSheet(EfeServerPoint2D pointSize, int[] arrayLevelCycle, int[] arrayLevelEdge)
             throws EpeAppException {
-        EpeAppUtils.checkNull("pointSize", pointSize);
+        this.validateSize(pointSize);
         this.pointSize = pointSize;
+        EfeServerLevels.validateNoIndex(arrayLevelCycle, arrayLevelEdge);
         this.levelsCycle = new EfeServerLevels(EfeServerLevels.Type.cycle, arrayLevelCycle);
         this.levelsEdge = new EfeServerLevels(EfeServerLevels.Type.edge, arrayLevelEdge);
         EpeAppUtils.checkEquals("arrayLevelCycle.length", "arrayLevelEdge.length", arrayLevelCycle.length + "",
                 arrayLevelEdge.length + "");
+    }
+
+    private void validateSize(EfeServerPoint2D pointSize) throws EpeAppException {
+        EpeAppUtils.checkNull("pointSize", pointSize);
+        EpeAppUtils.checkMinorOrEqual(1, pointSize.getX());
+        EpeAppUtils.checkMinorOrEqual(1, pointSize.getY());
     }
 
     public String inject(boolean mavenLike, String text) throws EpeAppException {

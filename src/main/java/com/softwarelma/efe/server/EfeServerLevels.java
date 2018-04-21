@@ -14,13 +14,26 @@ public class EfeServerLevels {
         index, cycle, edge
     }
 
+    /**
+     * only index type
+     */
     public EfeServerLevels(int numberOfLevels) throws EpeAppException {
         if (numberOfLevels < 1)
             throw new EpeAppException("The numberOfLevels is < 1: " + numberOfLevels);
         this.type = Type.index;
         this.arrayLevel = new int[numberOfLevels];
-        // for (int i = 0; i < this.arrayLevel.length; i++)
-        // this.arrayLevel[i] = -1;
+    }
+
+    /**
+     * only non-index type
+     */
+    public EfeServerLevels(Type type, int[] arrayLevel) throws EpeAppException {
+        EpeAppUtils.checkNull("type", type);
+        EpeAppUtils.checkNull("arrayLevel", arrayLevel);
+        this.type = type;
+        this.arrayLevel = new int[arrayLevel.length];
+        for (int i = 0; i < arrayLevel.length; i++)
+            this.arrayLevel[i] = arrayLevel[i];
     }
 
     @Override
@@ -29,36 +42,22 @@ public class EfeServerLevels {
         return type.toString().substring(0, 1) + " = " + str.substring(1, str.length() - 1);
     }
 
-    public EfeServerLevels(Type type, int[] arrayLevel) throws EpeAppException {
-        EpeAppUtils.checkNull("type", type);
-        EpeAppUtils.checkNull("arrayLevel", arrayLevel);
-        this.type = type;
-        this.arrayLevel = new int[arrayLevel.length];
-        // validateNoIndex(this.type, arrayLevel);
-        for (int i = 0; i < arrayLevel.length; i++)
-            this.arrayLevel[i] = arrayLevel[i];
-    }
+    public static void validateNoIndex(int[] arrayLevelCycle, int[] arrayLevelEdge) throws EpeAppException {
+        // Type.cycle
+        EpeAppUtils.checkEquals("arrayLevel[0] (" + arrayLevelCycle[0] + ")", "-1", arrayLevelCycle[0] + "", "-1");
+        for (int i = 1; i < arrayLevelCycle.length; i++)
+            if (arrayLevelCycle[i] < 0)
+                throw new EpeAppException(
+                        "Excepting the first, each cycle must be >= 0. Found c." + i + " = " + arrayLevelCycle[i]);
 
-    // TODO ?
-    private static void validateNoIndex(Type type, int[] arrayLevel) throws EpeAppException {
-        EpeAppUtils.checkNull("type", type.equals(Type.index) ? null : type);
-
-        if (type.equals(Type.cycle)) {
-            EpeAppUtils.checkEquals("arrayLevel[0] (" + arrayLevel[0] + ")", "-1", arrayLevel[0] + "", "-1");
-            for (int i = 1; i < arrayLevel.length; i++)
-                if (arrayLevel[i] < 1)
-                    throw new EpeAppException(
-                            "Excepting the first, each cycle must be > 0. Found c." + i + " = " + arrayLevel[i]);
-        } else if (type.equals(Type.edge)) {
-            if (arrayLevel[0] == 0 || arrayLevel[0] < -1)
-                throw new EpeAppException("The first edge must be -1 or > 0. Found e.0 = " + arrayLevel[0]);
-            for (int i = 1; i < arrayLevel.length; i++)
-                if (arrayLevel[i] < 1)
-                    throw new EpeAppException(
-                            "Excepting the first, each edge must be > 0. Found e." + i + " = " + arrayLevel[i]);
-        } else {
-            throw new EpeAppException("Unknown type: " + type);
-        }
+        // Type.edge
+        if (arrayLevelEdge[0] < -1)
+            throw new EpeAppException("The first edge must be >= -1. Found e.0 = " + arrayLevelEdge[0]);
+        for (int i = 1; i < arrayLevelEdge.length; i++)
+            if (arrayLevelEdge[i] < -1 || arrayLevelEdge[i] > arrayLevelCycle[i])
+                throw new EpeAppException(
+                        "Excepting the first, each edge must be >= -1 and <= respective cyle. Found e." + i + " = "
+                                + arrayLevelEdge[i] + ", c." + i + " = " + arrayLevelCycle[i]);
     }
 
     public void checkTypeIndex() throws EpeAppException {
