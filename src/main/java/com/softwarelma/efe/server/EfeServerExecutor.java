@@ -78,7 +78,7 @@ public class EfeServerExecutor {
     }
 
     private String retrievePolyline() {
-        return "<polyline points='${points}' \n\t\t\tstyle='fill:none;stroke:red;stroke-width:2' />";
+        return "<polyline points='${points}' \n\t\t\tstyle='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />";
     }
 
     private EfeServerPoints retrieveBorderPoints(EfeServerSheet sheet) throws EpeAppException {
