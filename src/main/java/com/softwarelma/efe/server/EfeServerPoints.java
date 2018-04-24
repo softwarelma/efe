@@ -25,7 +25,7 @@ public class EfeServerPoints {
                 sb.append(" [size=");
                 sb.append(this.size(i));
                 sb.append("] = ");
-                sb.append(this.getListPointAsString(i));
+                sb.append(this.getListPointAsString(i, false));
             }
         } catch (EpeAppException e) {
             throw new EpeAppRuntimeException("EfeServerPoints.toString", e);
@@ -34,18 +34,19 @@ public class EfeServerPoints {
         return sb.toString();
     }
 
-    public String getListPointAsString(int i) throws EpeAppException {
+    public String getListPointAsString(int i, boolean smoothing) throws EpeAppException {
         EpeAppUtils.checkRange(i, 0, this.listListPoint.size(), false, true);
         List<EfeServerPoint2D> listPoint = this.listListPoint.get(i);
         StringBuilder sb = new StringBuilder();
-        String sep = "";
+        String sep = "[";
 
         for (EfeServerPoint2D point : listPoint) {
             sb.append(sep);
-            sep = " ";
+            sep = ", [";
             sb.append(point.getX());
             sb.append(",");
             sb.append(point.getY());
+            sb.append("]");
         }
 
         return sb.toString();

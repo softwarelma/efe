@@ -12,5 +12,6 @@ public abstract class EfeMainConstants {
     public static String FILE_SHEET = DIR_DATA_SHEETS + "/sheet.sefe";
     public static String FILE_EFE_HTML = DIR_DATA_PAGES + "/efe.html";
     public static String FILE_TEMPLATE_EFE_HTML = DIR_DATA_TEMPLATES + "/template_efe.html";
+    public static String FILE_TEMPLATE_SMOOTHING_HTML = DIR_DATA_TEMPLATES + "/template_smoothing.html";
 
 }

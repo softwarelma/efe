@@ -44,6 +44,10 @@ import com.softwarelma.epe.p3.generic.EpeGenericFinalReplace;
  * p: enable printing TODO
  * 
  * !p: disable printing TODO
+ * 
+ * t: enable smoothing TODO
+ * 
+ * !t: disable smoothing TODO
  */
 public class EfeServerExecutor {
 
@@ -52,13 +56,14 @@ public class EfeServerExecutor {
         EfeServerFormula formula = this.retrieveFormula();
         EfeServerIndex index = new EfeServerIndex(sheet.getNumberOfLevels());
         EfeServerPoints points = this.execAll(sheet, formula, index);
-        this.writePage(points, sheet);
+        this.writePage(points, sheet, formula);
         return points;
     }
 
-    private void writePage(EfeServerPoints points, EfeServerSheet sheet) throws EpeAppException {
+    private void writePage(EfeServerPoints points, EfeServerSheet sheet, EfeServerFormula formula)
+            throws EpeAppException {
         EfeServerPoints borderPoints = this.retrieveBorderPoints(sheet);
-        String borderPointsStr = borderPoints.getListPointAsString(0);
+        String borderPointsStr = borderPoints.getListPointAsString(0, false);
         EpeEncodingsResponse response = EpeDiskFinalFread_encoding.fRead(false, EfeMainConstants.FILE_TEMPLATE_EFE_HTML,
                 null);
         String template = response.getFileContent();
@@ -66,19 +71,31 @@ public class EfeServerExecutor {
                 Arrays.asList(sheet.getWidth() + "", sheet.getHeight() + "", borderPointsStr));
 
         for (int i = 0; i < points.size(); i++) {
-            String pointsStr = points.getListPointAsString(i);
-            String polyling = this.retrievePolyline();
-            polyling = EpeGenericFinalReplace.replace(true, polyling, "points", pointsStr);
-            template = EpeGenericFinalReplace.replace(true, template, "polyline", polyling + "\n\t\t${polyline}");
+            String pointsStr = points.getListPointAsString(i, formula.isSmoothing());
+            String polyline = this.retrievePolyline();
+            polyline = EpeGenericFinalReplace.replace(true, polyline, "points", pointsStr);
+            template = EpeGenericFinalReplace.replace(true, template, "polyline", polyline + "\n\t\t${polyline}");
         }
 
         template = EpeGenericFinalReplace.replace(true, template, "polyline", "");
+
+        String smoothingScript = this.retrieveSmoothingScript(formula);
+        template = EpeGenericFinalReplace.replace(true, template, "smoothingScript", smoothingScript);
+
         EpeDiskFinalFwrite.fWrite(false, EfeMainConstants.FILE_EFE_HTML, template, response.getEncoding(), false);
         System.out.println(points);
     }
 
     private String retrievePolyline() {
         return "<polyline points='${points}' \n\t\t\tstyle='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />";
+    }
+
+    private String retrieveSmoothingScript(EfeServerFormula formula) throws EpeAppException {
+        if (!formula.isSmoothing())
+            return "";
+        EpeEncodingsResponse response = EpeDiskFinalFread_encoding.fRead(false,
+                EfeMainConstants.FILE_TEMPLATE_SMOOTHING_HTML, null);
+        return response.getFileContent();
     }
 
     private EfeServerPoints retrieveBorderPoints(EfeServerSheet sheet) throws EpeAppException {

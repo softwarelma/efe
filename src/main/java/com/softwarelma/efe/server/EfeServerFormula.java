@@ -7,6 +7,7 @@ import com.softwarelma.epe.p3.generic.EpeGenericFinalClean_comment;
 public class EfeServerFormula {
 
     private boolean mavenLike = true;
+    private boolean smoothing = true;// FIXME false
     private final String text;
 
     public EfeServerFormula(String text) throws EpeAppException {
@@ -27,17 +28,16 @@ public class EfeServerFormula {
         this.mavenLike = mavenLike;
     }
 
+    public boolean isSmoothing() {
+        return smoothing;
+    }
+
+    public void setSmoothing(boolean smoothing) {
+        this.smoothing = smoothing;
+    }
+
     public String getText() {
         return text;
     }
-
-    // public String getSelector() {
-    // return selector;
-    // }
-    //
-    // public String getTextByPhase() throws EpeAppException {
-    // return EpeAppUtils.isEmptyList(this.listPre) ? this.listText.get(0) :
-    // this.listPre.remove(0);
-    // }
 
 }
