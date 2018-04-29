@@ -72,9 +72,12 @@ public class EfeServerExecutor {
 
         for (int i = 0; i < points.size(); i++) {
             String pointsStr = points.getListPointAsString(i, formula.isSmoothing());
-            String polyline = this.retrievePolyline();
-            polyline = EpeGenericFinalReplace.replace(true, polyline, "points", pointsStr);
-            template = EpeGenericFinalReplace.replace(true, template, "polyline", polyline + "\n\t\t${polyline}");
+
+            if (formula.isSmoothing()) {
+                String polyline = this.retrievePolyline();
+                polyline = EpeGenericFinalReplace.replace(true, polyline, "points", pointsStr);
+                template = EpeGenericFinalReplace.replace(true, template, "polyline", polyline + "\n\t\t${polyline}");
+            }
         }
 
         template = EpeGenericFinalReplace.replace(true, template, "polyline", "");
@@ -87,6 +90,7 @@ public class EfeServerExecutor {
     }
 
     private String retrievePolyline() {
+        // TODO to template
         return "<polyline points='${points}' \n\t\t\tstyle='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />";
     }
 

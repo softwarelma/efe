@@ -3,40 +3,40 @@
 <body>
 	<svg height="450" width="800" version="1.1"
 		xmlns="http://www.w3.org/2000/svg" class="svg">
-		<polyline points="0,0 800,0 800,450 0,450 0,0"
+		<polyline points="[0,0], [800,0], [800,450], [0,450], [0,0]"
 			style="fill:none;stroke:black;stroke-width:2;stroke-linejoin:round" />
 
-		<polyline points='0,20 40,20 40,60 80,60' 
+		<polyline points='[0,20], [40,20], [40,60], [80,60]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='0,70 40,70 40,110 80,110' 
+		<polyline points='[0,70], [40,70], [40,110], [80,110]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='100,20 140,20 140,60 180,60' 
+		<polyline points='[100,20], [140,20], [140,60], [180,60]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='100,70 140,70 140,110 180,110' 
+		<polyline points='[100,70], [140,70], [140,110], [180,110]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='0,170 40,170 40,210 80,210' 
+		<polyline points='[0,170], [40,170], [40,210], [80,210]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='0,220 40,220 40,260 80,260' 
+		<polyline points='[0,220], [40,220], [40,260], [80,260]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='100,170 140,170 140,210 180,210' 
+		<polyline points='[100,170], [140,170], [140,210], [180,210]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='100,220 140,220 140,260 180,260' 
+		<polyline points='[100,220], [140,220], [140,260], [180,260]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='350,20 390,20 390,60 430,60' 
+		<polyline points='[350,20], [390,20], [390,60], [430,60]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='350,70 390,70 390,110 430,110' 
+		<polyline points='[350,70], [390,70], [390,110], [430,110]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='450,20 490,20 490,60 530,60' 
+		<polyline points='[450,20], [490,20], [490,60], [530,60]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='450,70 490,70 490,110 530,110' 
+		<polyline points='[450,70], [490,70], [490,110], [530,110]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='350,170 390,170 390,210 430,210' 
+		<polyline points='[350,170], [390,170], [390,210], [430,210]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='350,220 390,220 390,260 430,260' 
+		<polyline points='[350,220], [390,220], [390,260], [430,260]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='450,170 490,170 490,210 530,210' 
+		<polyline points='[450,170], [490,170], [490,210], [530,210]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
-		<polyline points='450,220 490,220 490,260 530,260' 
+		<polyline points='[450,220], [490,220], [490,260], [530,260]' 
 			style='fill:none;stroke:red;stroke-width:2;stroke-linejoin:round' />
 		
 		Sorry, your browser does not support inline SVG.
@@ -50,10 +50,7 @@
 	// The smoothing ratio
 	var smoothing = 0.2;
 
-	var pointsMulti = [
-		[ [ 5, 10 ], [ 10, 40 ], [ 40, 30 ], [ 60, 5 ], [ 90, 45 ], [ 120, 10 ], [ 150, 45 ], [ 200, 10 ] ],
-		[ [ 50, 50 ], [ 70, 70 ], [ 50, 50 ] ]
-	];
+	var pointsMulti = [ ${smoothingPoints} ];
 
 	// Properties of a line 
 	// I:  - pointA (array) [x,y]: coordinates

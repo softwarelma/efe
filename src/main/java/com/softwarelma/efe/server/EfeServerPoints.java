@@ -35,9 +35,13 @@ public class EfeServerPoints {
     }
 
     public String getListPointAsString(int i, boolean smoothing) throws EpeAppException {
+        return smoothing ? this.getListPointAsStringSmoothing(i) : this.getListPointAsStringNonSmoothing(i);
+    }
+
+    private String getListPointAsStringSmoothing(int i) throws EpeAppException {
         EpeAppUtils.checkRange(i, 0, this.listListPoint.size(), false, true);
         List<EfeServerPoint2D> listPoint = this.listListPoint.get(i);
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("[ ");
         String sep = "[";
 
         for (EfeServerPoint2D point : listPoint) {
@@ -47,6 +51,24 @@ public class EfeServerPoints {
             sb.append(",");
             sb.append(point.getY());
             sb.append("]");
+        }
+
+        sb.append(" ]");
+        return sb.toString();
+    }
+
+    private String getListPointAsStringNonSmoothing(int i) throws EpeAppException {
+        EpeAppUtils.checkRange(i, 0, this.listListPoint.size(), false, true);
+        List<EfeServerPoint2D> listPoint = this.listListPoint.get(i);
+        StringBuilder sb = new StringBuilder();
+        String sep = "";
+
+        for (EfeServerPoint2D point : listPoint) {
+            sb.append(sep);
+            sep = " ";
+            sb.append(point.getX());
+            sb.append(",");
+            sb.append(point.getY());
         }
 
         return sb.toString();
